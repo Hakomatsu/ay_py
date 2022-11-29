@@ -4,7 +4,7 @@
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Nov.01, 2018
-from dxl_mikata import *
+from .dxl_mikata import *
 
 class TCraneX7(TMikata):
   def __init__(self, dev='/dev/ttyUSB0'):

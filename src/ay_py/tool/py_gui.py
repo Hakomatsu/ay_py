@@ -23,8 +23,8 @@ class TTerminalTab(QtGui.QWidget):
 
   # Get a dict of option name: option content
   def ExpandOpt(self):
-    opt= {name:rbgroup.checkedButton().text() for name,rbgroup in self.RBOptions.iteritems()}
-    opt.update({name:cmbbx.currentText() for name,cmbbx in self.CBOptions.iteritems()})
+    opt= {name:rbgroup.checkedButton().text() for name,rbgroup in list(self.RBOptions.items())}
+    opt.update({name:cmbbx.currentText() for name,cmbbx in list(self.CBOptions.items())})
     return opt
 
   def CmdToLambda(self,term,cmd):

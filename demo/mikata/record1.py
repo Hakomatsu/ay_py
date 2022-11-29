@@ -24,7 +24,7 @@ try:
     if c=='q':  break
     elif c is not None:
       #print mikata.State()
-      print mikata.State()['position']
+      print(mikata.State()['position'])
     #mikata.MoveTo(mikata.Position(as_dict=True),wait=False)
     time.sleep(0.0025)
 except KeyboardInterrupt:

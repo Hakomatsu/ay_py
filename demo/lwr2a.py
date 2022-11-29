@@ -31,8 +31,8 @@ def Main():
       line= fp.readline()
       if not line: break
       data= line.split()
-      model.Update(map(float,data[0:dim[0]]),
-                   map(float,data[dim[0]:sum(dim)]))
+      model.Update(list(map(float,data[0:dim[0]])),
+                   list(map(float,data[dim[0]:sum(dim)])))
     SaveYAML(model.Save('/tmp/lwr/'), '/tmp/lwr/lwr_model.yaml')
 
   mi= [min([x[d] for x in model.DataX]) for d in range(len(model.DataX[0]))]
@@ -48,7 +48,7 @@ def Main():
   fp.close()
 
 def PlotGraphs():
-  print 'Plotting graphs..'
+  print('Plotting graphs..')
   import os
   commands=[
     '''qplot -x2 aaa -3d
@@ -61,13 +61,13 @@ def PlotGraphs():
   for cmd in commands:
     if cmd!='':
       cmd= ' '.join(cmd.splitlines())
-      print '###',cmd
+      print('###',cmd)
       os.system(cmd)
 
-  print '##########################'
-  print '###Press enter to close###'
-  print '##########################'
-  raw_input()
+  print('##########################')
+  print('###Press enter to close###')
+  print('##########################')
+  input()
   os.system('qplot -x2kill aaa')
 
 if __name__=='__main__':

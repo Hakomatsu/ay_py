@@ -40,9 +40,9 @@ if __name__=='__main__':
     dt= time.time()-t_0
     dt_sum+= dt
     dt_cnt+= 1
-    print 'N, Computational time [ms]:',N,dt*1000
+    print('N, Computational time [ms]:',N,dt*1000)
     rate_adjuster.sleep()
 
-  print 'Average computational time [ms]:',dt_sum/dt_cnt*1000
+  print('Average computational time [ms]:',dt_sum/dt_cnt*1000)
 
 

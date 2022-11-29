@@ -56,11 +56,11 @@ def Assess(tsys,cy,cz,w):
 
 #Dynamics+Assess system
 def Whole(tsys,y,z):
-  if tsys.DEBUG:  print 'y,z:',y,z,
+  if tsys.DEBUG:  print('y,z:',y,z, end=' ')
   cy,cz,w= Dynamics(tsys,y,z)
-  if tsys.DEBUG:  print '  cy,cz,w:',cy,cz,w,
+  if tsys.DEBUG:  print('  cy,cz,w:',cy,cz,w, end=' ')
   e= Assess(tsys,cy,cz,w)
-  if tsys.DEBUG:  print '  e:',e
+  if tsys.DEBUG:  print('  e:',e)
   return e
 
 def Constrain(bound,v):

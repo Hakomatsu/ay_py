@@ -7,8 +7,8 @@ import random
 from scipy.spatial import ConvexHull as scipy_ConvexHull
 from scipy.spatial.qhull import QhullError as scipy_QhullError
 from scipy.optimize import minimize as scipy_minimize
-from util import *
-from geom import *
+from .util import *
+from .geom import *
 
 #Return an intersection between (p1,p2) and (pA,pB).
 #Return None if there is no intersection.
@@ -33,7 +33,7 @@ def LineLineIntersection(p1, p2, pA, pB, tol=1e-8):
 
 def LinePolygonIntersection(p1, p2, points):
   pIs= [LineLineIntersection(p1,p2,pA,pB) for pA,pB in zip(points, points[1:]+[points[0]])]
-  return filter(None,pIs)
+  return [_f for _f in pIs if _f]
 
 #Get intersections of a line segment (p1,p2) and a circle (pc,rad).
 #  Return [t1,t2] or [t1] or [] where tN is a scolar representing an intersection:
@@ -132,11 +132,11 @@ def MatchPolygons(points, points_ref, axes, bounds, maxeval=1000):
   while f_obj(r)==0.0 and maxeval>0:
     r= RandB(bounds)
     maxeval-= 1
-    print r,f_obj(r)
+    print((r,f_obj(r)))
   if f_obj(r)==0.0:  return None, points
   bounds2= [[xmin,xmax] for xmin,xmax in zip(bounds[0],bounds[1])]
   res= scipy_minimize(f_obj, r, bounds=bounds2, options={'maxiter':maxeval})
-  print res
+  print(res)
   r= res['x']
   points_mv= points+np.dot(r,axes)
   return r, points_mv.tolist()
@@ -158,7 +158,7 @@ class TPCA:
     return np.dot(points-self.Mean, self.EVecs)
 
   def Reconstruct(self,proj,idx=None):
-    if idx is None:  idx= range(len(self.EVecs))
+    if idx is None:  idx= list(range(len(self.EVecs)))
     return np.dot(proj, self.EVecs[:,idx].T) + self.Mean
 
 class TPCA_SVD(TPCA):
@@ -247,8 +247,8 @@ class TParameterizedPolygon:
       self.Angles.append(self.Angles[0])
       self.Points.append(points[0])
       self.Points2D.append(pca.Projected[0,[0,1]])
-    self.IdxAngleMin= min(range(len(self.Angles)), key=lambda i: self.Angles[i])
-    self.IdxAngleMax= max(range(len(self.Angles)), key=lambda i: self.Angles[i])
+    self.IdxAngleMin= min(list(range(len(self.Angles))), key=lambda i: self.Angles[i])
+    self.IdxAngleMax= max(list(range(len(self.Angles))), key=lambda i: self.Angles[i])
     #print 'angles:',angles
     #print 'self.Angles:',self.Angles
     self.Bounds= self.ComputeBounds()
@@ -282,7 +282,7 @@ class TParameterizedPolygon:
       alpha= abs(angle-self.Angles[i_closest])
       alpha2= 2.0*math.pi+self.Angles[i_closest2]-angle
     else:
-      i_closest= filter(lambda i: IsAngleIn(angle,[self.Angles[i],self.Angles[i+1]]), range(len(self.Angles)-1))
+      i_closest= [i for i in range(len(self.Angles)-1) if IsAngleIn(angle,[self.Angles[i],self.Angles[i+1]])]
       if len(i_closest)==0:  return None
       i_closest= i_closest[0]
       i_closest2= i_closest+1
@@ -394,7 +394,7 @@ def CircleFit2D(XY):
   ZXY1= np.matrix([Z, X, Y, [1.0]*len(Z)]).transpose()
   U,S,V= la.svd(ZXY1,0)
   if S[3]/S[0]<1.0e-12:  # singular case
-    print 'CircleFit2D: SINGULAR'
+    print('CircleFit2D: SINGULAR')
     A= (V.transpose())[:,3]
   else:  # regular case
     R= np.average(np.array(ZXY1),0)
@@ -446,10 +446,10 @@ def CircleFitX(marker_data):
   n_x= n_x/la.norm(n_x)
   n_y= np.cross(n_z,n_x)
 
-  print 'p_mean= ',p_mean
-  print 'n_x= ',n_x
-  print 'n_y= ',n_y
-  print 'n_z= ',n_z
+  print(('p_mean= ',p_mean))
+  print(('n_x= ',n_x))
+  print(('n_y= ',n_y))
+  print(('n_z= ',n_z))
 
   #Project the data onto the plane n_x, n_y
   p_data= []
@@ -558,18 +558,18 @@ def BoxPlaneIntersection(box, x_box, x_plane):
                [ W*0.5,  D*0.5,  H*0.5],
                [-W*0.5,  D*0.5,  H*0.5]]
   #Project box_points onto the x_plane frame:
-  l_box_points= map(lambda p: TransformLeftInv(x_plane,Transform(x_box,p)), box_points)
+  l_box_points= [TransformLeftInv(x_plane,Transform(x_box,p)) for p in box_points]
 
   #Indexes of box edges.
   box_edges= [[0,1],[1,2],[2,3],[3,0],
               [4,5],[5,6],[6,7],[7,4],
               [1,5],[4,0],[3,7],[6,2]]
   #Extract box edges that have an intersection with the plane.
-  box_edges= filter(lambda (i1,i2): l_box_points[i1][2]<=0<=l_box_points[i2][2] or l_box_points[i2][2]<=0<=l_box_points[i1][2], box_edges)
+  box_edges= [i1_i2 for i1_i2 in box_edges if l_box_points[i1_i2[0]][2]<=0<=l_box_points[i1_i2[1]][2] or l_box_points[i1_i2[1]][2]<=0<=l_box_points[i1_i2[0]][2]]
   if len(box_edges)==0:  return []
   #Calculate intersection points.
   f_intersect= lambda p1,p2: [(p1[0]*p2[2]-p1[2]*p2[0])/(p2[2]-p1[2]), (p1[1]*p2[2]-p1[2]*p2[1])/(p2[2]-p1[2])] if abs(p2[2]-p1[2])>EPS else [(p1[0]+p2[0])*0.5, (p1[1]+p2[1])*0.5]
-  l_p_intersect= map(lambda (i1,i2):f_intersect(l_box_points[i1],l_box_points[i2]), box_edges)
+  l_p_intersect= [f_intersect(l_box_points[i1_i21[0]],l_box_points[i1_i21[1]]) for i1_i21 in box_edges]
 
   #Make it convex:
   try:

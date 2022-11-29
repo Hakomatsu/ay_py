@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #Robot controller for Motoman.
-from const import *
+from .const import *
 #if ROS_ROBOT not in ('ANY','Motoman','Motoman_SIM'):
   #raise ImportError('Stop importing: ROS_ROBOT is not Motoman')
 #if ROS_DISTRO not in ('groovy','hydro','indigo'):  return
@@ -13,8 +13,8 @@ import sensor_msgs.msg
 import trajectory_msgs.msg
 import copy
 
-from robot import *
-from kdl_kin import *
+from .robot import *
+from .kdl_kin import *
 
 '''Robot control class for single Motoman SIA10F with a Robotiq gripper.'''
 class TRobotMotoman(TMultiArmRobot):
@@ -59,7 +59,7 @@ class TRobotMotoman(TMultiArmRobot):
 
     #print 'Enabling the robot...'
 
-    print 'Initializing and activating Robotiq gripper...'
+    print('Initializing and activating Robotiq gripper...')
     ra(self.robotiq.Init())
 
     if False not in res:  self._is_initialized= True

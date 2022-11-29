@@ -14,10 +14,10 @@ if __name__=='__main__':
   dev= sys.argv[1] if len(sys.argv)>1 else DXLG_DEV
   rospy.init_node('mikata_test')
   robot= TRobotMikata(dev=dev,is_sim=True)
-  print 'Initializing...'
+  print('Initializing...')
   robot.Init()
   rospy.sleep(0.2)
-  print 'Done.'
+  print('Done.')
 
   #q= [qj for qj in robot.Q()]
   q= robot.GripperPos()

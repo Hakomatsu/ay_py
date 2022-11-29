@@ -2,14 +2,14 @@
 '''
 Dynamic programming and learning over graph-dynamical system.
 '''
-from util import *
-from ml import *
-from ml_lwr import TLWR
-from ml_dnn import TNNRegression
-from opt import *
+from .util import *
+from .ml import *
+from .ml_lwr import TLWR
+from .ml_dnn import TNNRegression
+from .opt import *
 
 import multiprocessing as mp
-import Queue as MPQueue
+import queue as MPQueue
 
 #Hashable pair (a,b). type(a) and type(b) should be hashable.
 #Do not modify the content.
@@ -52,7 +52,7 @@ class TPair(object):
 #return that type or default_type if x is empty.
 def GetDictElemType(x, default_type=None):
   try:
-    return type(x.itervalues().next())
+    return type(next(iter(x.values())))
   except StopIteration:
     return default_type
 
@@ -180,7 +180,7 @@ def MapToXSSAGrad(space_defs, grad_e, keys_y, keys_x, grads):
 #but has the same-type objects (i.e. references of original elements).
 def CopyXSSA(xs):
   ys= {}
-  for key,value in xs.iteritems():
+  for key,value in xs.items():
     ys[key]= value
   return ys
 
@@ -190,7 +190,7 @@ def CopyXSSA(xs):
 #Use with CopyXSSA, e.g. zs= PartialCopyXSSA(xs,CopyXSSA(ys),keys)
 def PartialCopyXSSA(xs, ys, keys=None):
   ssatype= GetDictElemType(ys, default_type=TSSA)
-  if keys is None:  keys= xs.iterkeys()
+  if keys is None:  keys= iter(xs.keys())
   for key in keys:
     ys[key]= xs[key] if key in xs else ssatype()
   return ys
@@ -207,7 +207,7 @@ def ExtractXSSA(xs, keys):
 #d would be obtained by ToStdType(xs).
 def StdDictToXSSA(d):
   xs= {}
-  for key,value in d.iteritems():
+  for key,value in d.items():
     xs[key]= TSSA(x=MCVec(value['X']),cov=value['Cov'])
   return xs
 
@@ -557,11 +557,11 @@ class TPlanningNode(object):
     def convert(x):
       if isinstance(x,np.ndarray): return x.tolist()
       if isinstance(x,list): return [convert(value) for value in x]
-      if isinstance(x,dict): return {key:convert(value) for key,value in x.iteritems()}
+      if isinstance(x,dict): return {key:convert(value) for key,value in x.items()}
       return x
     line= '{'
     delim= ''
-    for key,value in self.__dict__.iteritems():
+    for key,value in self.__dict__.items():
       line+= '%s%s:%s'%(delim,key,str(convert(value)))
       delim= ', '
     line+= '}'
@@ -582,10 +582,10 @@ class TPlanningTree(object):
     self.FlagBwd= 0  #Backward is 0:Not computed, 1:Computed.
   def Dump(self):
     for key in ('Start','Terminal','BwdOrder','Actions','Selections','Models','FlagFwd','FlagBwd'):
-      print '%s:%s'%(key,str(self.__dict__[key]))
-    print 'Tree:'
-    for key,node in self.Tree.iteritems():
-      print '  %s:%s'%(key,node.Dump())
+      print('%s:%s'%(key,str(self.__dict__[key])))
+    print('Tree:')
+    for key,node in self.Tree.items():
+      print('  %s:%s'%(key,node.Dump()))
 
   #Return a start node (TPlanningNode).
   #WARNING: After modifying the node (e.g. StartNode.XS), execute ResetFlags().
@@ -612,7 +612,7 @@ class TPlanningTree(object):
     blank.Actions= self.Actions
     blank.Selections= self.Selections
     blank.Models= self.Models
-    for key,node in self.Tree.iteritems():
+    for key,node in self.Tree.items():
       n_blank= TPlanningNode()
       n_blank.Parent= node.Parent
       n_blank.Next= node.Next
@@ -631,7 +631,7 @@ def GraphToPTree(graph, start, max_visits):
   ng_start= start
   tree= TPlanningTree()
   tree.Start= TPair(ng_start,0)
-  num_visits= {key:0 for key in graph.iterkeys()}
+  num_visits= {key:0 for key in graph.keys()}
   queue= [(None,ng_start)]  #Stack of (nt_parent,ng_curr)
   while len(queue)>0:
     nt_parent,ng_curr= queue.pop(0)
@@ -649,7 +649,7 @@ def GraphToPTree(graph, start, max_visits):
         #Add to the Next list; if num_visits exceeds the threshold, None is added to keep the size of Next.
         t_node.Next.append(TPair(ng_next,num_visits[ng_next]) if num_visits[ng_next]<max_visits else None)
   #Get terminal nodes:
-  for key,t_node in tree.Tree.iteritems():
+  for key,t_node in tree.Tree.items():
     if len(t_node.Next)==0:
       tree.Terminal.append(key)
   #Get order of backward computation:
@@ -683,9 +683,9 @@ class TGraphDynUtil(object):
   def CheckOptions(self,options):
     res= True
     defaults= self.DefaultOptions()
-    for key,val in options.iteritems():
+    for key,val in options.items():
       if not key in defaults:
-        print 'Invalid option: %s'%(key)
+        print('Invalid option: %s'%(key))
         res= False
     return res
 
@@ -763,7 +763,7 @@ class TGraphDynUtil(object):
     In,Out,Fd= self.d.Models[key]
     if len(Out)==0:
       if not with_grad:  return CopyXSSA(xs)
-      else:              return CopyXSSA(xs), InitXSSAGrad(self.d.SpaceDefs, xs.iterkeys())
+      else:              return CopyXSSA(xs), InitXSSAGrad(self.d.SpaceDefs, iter(xs.keys()))
     x_in,cov_in,dims_in= SerializeXSSA(self.d.SpaceDefs, xs, In)
     pred= Fd.Predict(x_in, cov_in, with_var=True, with_grad=with_grad)
     ys= CopyXSSA(xs)  #Note: references are copied (efficient).
@@ -774,7 +774,7 @@ class TGraphDynUtil(object):
       #Compute grads[TPair(key_y,key_x)]= dFy/dx.
       #This initialization assigns grads[TPair(key_xy,key_xy)]=1 for all key_xy in xy.keys()
       #since usually elements are kept as far as F does nothing.
-      grads= InitXSSAGrad(self.d.SpaceDefs, xs.iterkeys())
+      grads= InitXSSAGrad(self.d.SpaceDefs, iter(xs.keys()))
       #Map gradients in pred to grads.
       grads= MapToXSSAGrad(self.d.SpaceDefs, Mat(pred.Grad), Out, In, grads)
       return ys, grads
@@ -834,7 +834,7 @@ class TGraphDynUtil(object):
           #In this case, we force the probability zero
           tnode.P[b]= 0.0
           if with_grad:
-            for key_x,dFp in tnode.dFp.iteritems():
+            for key_x,dFp in tnode.dFp.items():
               dFp[:,b]= 0.0
     ptree.FlagFwd= 2 if with_grad else 1
     ptree.FlagBwd= 0
@@ -862,13 +862,13 @@ class TGraphDynUtil(object):
       J_next= MCVec([tnode_nx.J for tnode_nx in tnode_next])
       tnode.J= np.dot(ToList(tnode.P),ToList(J_next))
       tnode.dJ= {}
-      for key_x in tnode.XS.iterkeys():
+      for key_x in tnode.XS.keys():
         dJ_dx= None
         if key_x in tnode.dFp:  dJ_dx= mplus(dJ_dx, tnode.dFp[key_x]*J_next)
-        for tnode_nx,p_nx,b in zip(tnode_next,ToList(tnode.P),xrange(len(tnode_next))):
+        for tnode_nx,p_nx,b in zip(tnode_next,ToList(tnode.P),range(len(tnode_next))):
           dj= None
           dFd= tnode.dFd[b]
-          for key_y in tnode_nx.XS.iterkeys():
+          for key_y in tnode_nx.XS.keys():
             if TPair(key_y,key_x) in dFd and key_y in tnode_nx.dJ:
               dj= mplus(dj, dFd[TPair(key_y,key_x)]*tnode_nx.dJ[key_y])
           if dj is not None:  dJ_dx= mplus(dJ_dx, p_nx*dj)
@@ -883,7 +883,7 @@ class TGraphDynUtil(object):
     ptree.Tree[ptree.Start].XS= xs_start
     #Get actions and selections to be planned:
     models= set()  #Models used in ptree.
-    for key,t_node in ptree.Tree.iteritems():
+    for key,t_node in ptree.Tree.items():
       #self.d.Graph[key.A].{Fp,Fd[0,1,...]}
       models.update({self.d.Graph[key.A].Fp})
       models.update(self.d.Graph[key.A].Fd)
@@ -1546,7 +1546,7 @@ class TGraphDDPSolver3(TGraphDynUtil):
         #FIXME: ADD NOISE TO actions_in_xs
         ptree_set.append((ptree3,self.Value(ptree3)))
       count+= count_sub
-      print 'DDP:', count, len(ptree_finished), len(ptree_set), max(ptree_finished,key=lambda x:x[1])[1] if len(ptree_finished)>0 else None, last_value, res_type,
+      print('DDP:', count, len(ptree_finished), len(ptree_set), max(ptree_finished,key=lambda x:x[1])[1] if len(ptree_finished)>0 else None, last_value, res_type, end=' ')
       CPrint(0,{key:ToList(ptree2.StartNode.XS[key].X) for key in ptree.Actions+ptree.Selections})
 
     if len(ptree_finished)>0:
@@ -1821,12 +1821,12 @@ class TGraphDDPSolver4(TGraphDynUtil):
         #FIXME: ADD NOISE TO actions_in_xs
         ptree_set.append((ptree3,self.Value(ptree3)))
       count+= count_sub
-      print 'DDP:', count, len(ptree_finished), len(ptree_set), max(ptree_finished,key=lambda x:x[1])[1] if len(ptree_finished)>0 else None, last_value, res_type,
+      print('DDP:', count, len(ptree_finished), len(ptree_set), max(ptree_finished,key=lambda x:x[1])[1] if len(ptree_finished)>0 else None, last_value, res_type, end=' ')
       CPrint(0,{key:ToList(ptree2.StartNode.XS[key].X) for key in ptree.Actions+ptree.Selections})
 
-    for i in xrange(len(processes)):  queue_cmd.put('stop')
-    for i in xrange(len(processes)):  queue_out.get()
-    for pid2,proc in processes.iteritems():  proc.join()
+    for i in range(len(processes)):  queue_cmd.put('stop')
+    for i in range(len(processes)):  queue_out.get()
+    for pid2,proc in processes.items():  proc.join()
 
     if len(ptree_finished)>0:
       return TGraphDDPRes(max(ptree_finished,key=lambda x:x[1])[0], TGraphDDPRes.OK)
@@ -1923,9 +1923,9 @@ class TModelManager(object):
   def CheckOptions(self,options):
     res= True
     defaults= self.DefaultOptions()
-    for key,val in options.iteritems():
+    for key,val in options.items():
       if not key in defaults:
-        print 'Invalid option: %s'%(key)
+        print('Invalid option: %s'%(key))
         res= False
     return res
 
@@ -1984,7 +1984,7 @@ class TModelManager(object):
   #Create learning models of self.Models[key] for key in keys.
   #If keys is None, learning models are created for all self.Models whose F is None and len(Out)>0.
   def CreateModels(self, keys=None):
-    if keys is None:  keys= [key for key,(In,Out,F) in self.Models.iteritems() if F is None and len(Out)>0]
+    if keys is None:  keys= [key for key,(In,Out,F) in self.Models.items() if F is None and len(Out)>0]
     if len(keys)==0:  return
     if self.Options['type']=='lwr':
       for key in keys:
@@ -2221,9 +2221,9 @@ class TModelManager2(object):
   def CheckOptions(self,options):
     res= True
     defaults= self.DefaultOptions()
-    for key,val in options.iteritems():
+    for key,val in options.items():
       if not key in defaults:
-        print 'Invalid option: %s'%(key)
+        print('Invalid option: %s'%(key))
         res= False
     return res
 
@@ -2278,9 +2278,9 @@ class TModelManager2(object):
     cdims_in= DimsXSSA(self.SpaceDefs,CmbIn)
     cdims_out= DimsXSSA(self.SpaceDefs,CmbOut)
     cum= np.cumsum(cdims_in)
-    k2i_in= {key:range(cum[i-1] if i>0 else 0,cum[i]) for i,key in enumerate(CmbIn)}  #Map of key to indexes in a whole input vector.
+    k2i_in= {key:list(range(cum[i-1] if i>0 else 0,cum[i])) for i,key in enumerate(CmbIn)}  #Map of key to indexes in a whole input vector.
     cum= np.cumsum(cdims_out)
-    k2i_out= {key:range(cum[i-1] if i>0 else 0,cum[i]) for i,key in enumerate(CmbOut)}  #Map of key to indexes in a whole output vector.
+    k2i_out= {key:list(range(cum[i-1] if i>0 else 0,cum[i])) for i,key in enumerate(CmbOut)}  #Map of key to indexes in a whole output vector.
 
     cmodels= []  #List of [In2,Out2,F] tuples where In2,Out2 are indexes of whole input,output vector.
     for In,Out,F in models:
@@ -2299,7 +2299,7 @@ class TModelManager2(object):
     data['options']= self.Options
     #data['params']= {}
 
-    for key,(In,Out,F) in self.Learning.iteritems():
+    for key,(In,Out,F) in self.Learning.items():
       prefix,path= self.GetFilePrefixPath(base_dir,key)
       SaveYAML(F.Save(prefix), path)
     return data

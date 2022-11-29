@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 #Robot controller for Kinova Gen3 with RH-P12-RN Gripper (Thormang3 gripper).
-from const import *
+from .const import *
 
 import roslib
 import rospy
 
-from rbt_gen3 import TRobotGen3
+from .rbt_gen3 import TRobotGen3
 
 '''Robot control class for single Kinova Gen3 with RH-P12-RN Gripper (Thormang3 gripper).'''
 class TRobotGen3ThG(TRobotGen3):
@@ -29,7 +29,7 @@ class TRobotGen3ThG(TRobotGen3):
       self.th_gripper= TSimGripper2F1(('RHP12RNGripper','ThGripper'),pos_range=[0.0,0.109])
     self.grippers= [self.th_gripper]
 
-    print 'Initializing and activating RHP12RNGripper gripper...'
+    print('Initializing and activating RHP12RNGripper gripper...')
     ra(self.th_gripper.Init())
 
     if False not in res:  self._is_initialized= True

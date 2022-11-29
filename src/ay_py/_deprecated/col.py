@@ -19,12 +19,12 @@ from ros_base import *
 
 #There must be a planning scene or FK / IK crashes
 def SetupPlanningScene():
-  print 'Waiting for /environment_server/set_planning_scene_diff...'
+  print('Waiting for /environment_server/set_planning_scene_diff...')
   rospy.wait_for_service('/environment_server/set_planning_scene_diff')
   set_scene= rospy.ServiceProxy('/environment_server/set_planning_scene_diff', arm_navigation_msgs.srv.SetPlanningSceneDiff)
   req= arm_navigation_msgs.srv.SetPlanningSceneDiffRequest()
   set_scene(req)
-  print 'OK'
+  print('OK')
   return set_scene
 
 

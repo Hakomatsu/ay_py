@@ -51,7 +51,7 @@ def Main():
   db.SDump2(sys.stdout,
       ('n3',None,lambda n:[calc(n[0].XS[REWARD_KEY].X[0,0])]) )
 
-  print '###Took %f[sec]'%(time.time()-t_start)
+  print('###Took %f[sec]'%(time.time()-t_start))
 
 if __name__=='__main__':
   Main()

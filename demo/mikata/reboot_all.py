@@ -8,7 +8,7 @@ from ay_py.misc.dxl_mikata import *
 mikata= TMikata()
 mikata.Setup()
 
-print 'Rebooting Dynamixel...'
+print('Rebooting Dynamixel...')
 mikata.Reboot()
 
 #mikata.DisableTorque()

@@ -14,9 +14,9 @@ if __name__=='__main__':
   dev= sys.argv[1] if len(sys.argv)>1 else DXLG_DEV
   rospy.init_node('mikata_off')
   robot= TRobotMikata(dev=dev)
-  print 'Initializing...'
+  print('Initializing...')
   robot.Init()
-  print 'Done.'
+  print('Done.')
 
   CPrint(1, 'Robot is relaxing...')
   for effort in range(5,-1,-1):  

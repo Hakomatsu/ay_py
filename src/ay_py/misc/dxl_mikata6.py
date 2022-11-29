@@ -4,7 +4,7 @@
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    May.31, 2019
-from dxl_mikata import *
+from .dxl_mikata import *
 
 class TMikata6(TMikata):
   def __init__(self, dev='/dev/ttyUSB0'):

@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 #Robot controller for Kinova Gen3 with DxlO3 Gripper.
-from const import *
+from .const import *
 
 import roslib
 import rospy
 
-from rbt_gen3 import TRobotGen3
+from .rbt_gen3 import TRobotGen3
 
 '''Robot control class for single Kinova Gen3 with DxlO3 Gripper.'''
 class TRobotGen3DxlO3(TRobotGen3):
@@ -29,7 +29,7 @@ class TRobotGen3DxlO3(TRobotGen3):
       self.dxlo3_gripper= TSimGripper2F1(('DxlO3',),pos_range=[0.0,0.118])
     self.grippers= [self.dxlo3_gripper]
 
-    print 'Initializing and activating DxlO3 gripper...'
+    print('Initializing and activating DxlO3 gripper...')
     ra(self.dxlo3_gripper.Init())
 
     if False not in res:  self._is_initialized= True

@@ -26,11 +26,11 @@ try:
   roslib.load_manifest('rviz')
   import rviz
 except:
-  print 'Failed to import rviz'
+  print('Failed to import rviz')
 
 
 def MergeDict(d_base, d_new):
-  for k_new,v_new in d_new.iteritems():
+  for k_new,v_new in d_new.items():
     if k_new in d_base and (type(v_new)==dict and type(d_base[k_new])==dict):
       MergeDict(d_base[k_new], v_new)
     else:
@@ -491,7 +491,7 @@ class TSimplePanel(QtGui.QWidget):
   #Add widgets from widget description dict.
   def AddWidgets(self, widgets):
     duplicate_req= []
-    for name,(w_type, w_param) in widgets.iteritems():
+    for name,(w_type, w_param) in widgets.items():
       if name in self.widgets_in:
         raise Exception('TSimplePanel.AddWidgets: widget already exists: {0}'.format(name))
       if w_type=='duplicate':
@@ -500,7 +500,7 @@ class TSimplePanel(QtGui.QWidget):
         self.widgets_in[name]= (w_type, w_param)
     for name,w_param in duplicate_req:
       self.widgets_in[name]= self.widgets_in[w_param]
-    for name in widgets.iterkeys():
+    for name in widgets.keys():
       w_type, w_param= self.widgets_in[name]
       self.widgets[name]= self.widget_generator[w_type](w_param)
 
@@ -543,7 +543,7 @@ class TSimplePanel(QtGui.QWidget):
 
   def ResizeText(self, event):
     s= self.rect().height()/self.font_height_scale
-    for name,obj in self.widgets.iteritems():
+    for name,obj in self.widgets.items():
       if not hasattr(obj,'font_size_range'):  continue
       self.ResizeTextOfObj(obj, obj.font_size_range, s)
 
@@ -841,8 +841,8 @@ def RunPanelApp():
 
 if __name__=='__main__':
   def Print(*s):
-    for ss in s:  print ss,
-    print ''
+    for ss in s:  print(ss, end=' ')
+    print('')
 
   widgets= {
     'btn1': (

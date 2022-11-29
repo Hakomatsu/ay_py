@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 #Robot controller for Universal Robots UR* with Dynamixel Gripper.
-from const import *
+from .const import *
 
 import roslib
 import rospy
 
-from rbt_ur import *
+from .rbt_ur import *
 
 '''Robot control class for single Universal Robots UR* with Dynamixel Gripper.'''
 class TRobotURDxlG(TRobotUR):
@@ -29,7 +29,7 @@ class TRobotURDxlG(TRobotUR):
       self.dxl_gripper= TSimGripper2F1(pos_range=[0.0,0.095])
     self.grippers= [self.dxl_gripper]
 
-    print 'Initializing and activating DxlGripper gripper...'
+    print('Initializing and activating DxlGripper gripper...')
     ra(self.dxl_gripper.Init())
 
     if False not in res:  self._is_initialized= True

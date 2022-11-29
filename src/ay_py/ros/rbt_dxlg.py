@@ -6,11 +6,11 @@
 #\version 0.2
 #\date    Feb.28, 2020
 #         Completely modified the implementation: now we use the gripper driver ROS node.
-from const import *
+from .const import *
 
 import threading
 
-from robot import TGripper2F1,TMultiArmRobot
+from .robot import TGripper2F1,TMultiArmRobot
 import sensor_msgs.msg
 import ay_util_msgs.srv
 
@@ -186,8 +186,8 @@ class TDxlGripper(TGripper2F1):
     req.command= 'Write'
     req.data_s= address
     if isinstance(data,dict):
-      req.joint_names= data.keys()
-      req.data_ia= data.values()
+      req.joint_names= list(data.keys())
+      req.data_ia= list(data.values())
     elif isinstance(data,list):
       req.joint_names= []
       req.data_ia= data
@@ -216,7 +216,7 @@ class TRobotDxlGripper(TMultiArmRobot):
     self.dxl_gripper= dxl_gripper
     self.grippers= [self.dxl_gripper]
 
-    print 'Initializing and activating {} gripper...'.format(self.Name)
+    print(('Initializing and activating {} gripper...'.format(self.Name)))
     ra(self.dxl_gripper.Init())
 
     if False not in res:  self._is_initialized= True

@@ -4,7 +4,7 @@
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    Mar.15, 2022
-from dxl_mikata import *
+from .dxl_mikata import *
 
 class TFD2F4DoF(TMikata):
   def __init__(self, dev='/dev/ttyUSB0'):

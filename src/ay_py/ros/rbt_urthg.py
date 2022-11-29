@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 #Robot controller for Universal Robots UR* with RH-P12-RN Gripper (Thormang3 gripper).
-from const import *
+from .const import *
 
 import roslib
 import rospy
 
-from rbt_ur import *
+from .rbt_ur import *
 
 '''Robot control class for single Universal Robots UR* with RH-P12-RN Gripper (Thormang3 gripper).'''
 class TRobotURThG(TRobotUR):
@@ -29,7 +29,7 @@ class TRobotURThG(TRobotUR):
       self.th_gripper= TSimGripper2F1(('RHP12RNGripper','ThGripper'),pos_range=[0.0,0.109])
     self.grippers= [self.th_gripper]
 
-    print 'Initializing and activating RHP12RNGripper gripper...'
+    print('Initializing and activating RHP12RNGripper gripper...')
     ra(self.th_gripper.Init())
 
     if False not in res:  self._is_initialized= True

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #Robot controller for Robotiq.
-from const import *
+from .const import *
 #if ROS_ROBOT not in ('ANY','Baxter','Baxter_SIM','BaxterN','RobotiqNB','Motoman','Motoman_SIM'):
   #raise ImportError('Stop importing: ROS_ROBOT does not have Robotiq')
 #if ROS_DISTRO not in ('groovy','hydro','indigo'):  return
@@ -10,9 +10,9 @@ try:
   roslib.load_manifest('robotiq_c_model_control')
   import robotiq_c_model_control.msg as robotiq_msgs
 except rospkg.common.ResourceNotFound:
-  print 'Module not found: robotiq_c_model_control'
+  print('Module not found: robotiq_c_model_control')
 except ImportError:
-  print 'Cannot import: robotiq_c_model_control.msg'
+  print('Cannot import: robotiq_c_model_control.msg')
 finally:
   #Define TRobotiq for class structure.
   if 'robotiq_msgs' not in globals():
@@ -23,7 +23,7 @@ finally:
 import rospy
 import time
 
-from robot import TGripper2F1
+from .robot import TGripper2F1
 
 
 '''Robotiq Gripper utility class'''
@@ -87,8 +87,8 @@ class TRobotiq(TGripper2F1):
 
   @staticmethod
   def PrintStatus(st):
-    print 'Flags(ACT,GTO,STA,OBJ,FLT):',st.gACT,st.gGTO,st.gSTA,st.gOBJ,st.gFLT,
-    print 'State(PR,PO,CU):',st.gPR,st.gPO,st.gCU
+    print('Flags(ACT,GTO,STA,OBJ,FLT):',st.gACT,st.gGTO,st.gSTA,st.gOBJ,st.gFLT, end=' ')
+    print('State(PR,PO,CU):',st.gPR,st.gPO,st.gCU)
 
   def Status(self):
     return self.status

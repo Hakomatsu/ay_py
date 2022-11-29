@@ -6,10 +6,10 @@
 #\version 0.2
 #\date    Feb.28, 2020
 #         Completely modified the implementation: now we use the gripper driver ROS node.
-from const import *
+from .const import *
 
-from robot import TGripper2FN
-from rbt_dxlg import TDxlGripper, TRobotDxlGripper
+from .robot import TGripper2FN
+from .rbt_dxlg import TDxlGripper, TRobotDxlGripper
 
 
 '''DxlO3 gripper utility class'''

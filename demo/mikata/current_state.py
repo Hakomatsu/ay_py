@@ -14,7 +14,7 @@ mikata.EnableTorque()
 mikata.SetPWM({jname:0 for jname in mikata.JointNames()})
 
 def StateCallback(state):
-  print 'State=',state
+  print('State=',state)
 
 mikata.StartStateObs(StateCallback)
 

@@ -4,7 +4,7 @@
 #\author  Akihiko Yamaguchi, info@akihikoy.net
 #\version 0.1
 #\date    May.21, 2022
-from dxl_gripper import TDxlGripperBase
+from .dxl_gripper import TDxlGripperBase
 
 '''DxlpY1 utility class'''
 class TDxlpY1(TDxlGripperBase):

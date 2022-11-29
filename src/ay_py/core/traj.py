@@ -5,8 +5,8 @@ import numpy.linalg as la
 import math
 import random
 import copy
-from util import *
-from geom import *
+from .util import *
+from .geom import *
 
 #Get a sequence of times, from 0 to dt including inum points (0 is not included).
 def TimeTraj(dt, inum):
@@ -49,7 +49,7 @@ def TTrajFromXTraj2(x_traj, linear_speed, angular_speed, linear_acceleration):
       if d<d_T1:    return np.sqrt(2.0*d/linear_acceleration)
       elif d<d_T2:  return d/linear_speed + linear_speed/(2.0*linear_acceleration)
       else:         return T3 - np.sqrt(2.0*max(0.0,d_T3-d)/linear_acceleration)
-    t_traj= map(t_from_start, d_traj)
+    t_traj= list(map(t_from_start, d_traj))
     #print [('T1' if d1<d_T1 else ('T2' if d1<d_T2 else 'T3'), t1-t0) for t0,t1,d0,d1 in zip(t_traj[:-1],t_traj[1:],d_traj[:-1],d_traj[1:])]
   else:  #There is no constant-velocity phase.
     T1= np.sqrt(d_T3/linear_acceleration)
@@ -58,7 +58,7 @@ def TTrajFromXTraj2(x_traj, linear_speed, angular_speed, linear_acceleration):
     def t_from_start(d):
       if d<d_T1:    return np.sqrt(2.0*d/linear_acceleration)
       else:         return T3 - np.sqrt(2.0*max(0.0,d_T3-d)/linear_acceleration)
-    t_traj= map(t_from_start, d_traj)
+    t_traj= list(map(t_from_start, d_traj))
     #print [('_T1' if d1<d_T1 else '_T3', t1-t0) for t0,t1,d0,d1 in zip(t_traj[:-1],t_traj[1:],d_traj[:-1],d_traj[1:])]
   return t_traj
 
@@ -98,7 +98,7 @@ def TTrajFromXTraj3(x_trajs, speed, speed_ratios, acceleration, dist_criteria):
       if d<d_T1:    return np.sqrt(2.0*d/acceleration)
       elif d<d_T2:  return d/speed + speed/(2.0*acceleration)
       else:         return T3 - np.sqrt(2.0*max(0.0,d_T3-d)/acceleration)
-    t_traj= map(t_from_start, d_traj)
+    t_traj= list(map(t_from_start, d_traj))
     #print [('T1' if d1<d_T1 else ('T2' if d1<d_T2 else 'T3'), t1-t0) for t0,t1,d0,d1 in zip(t_traj[:-1],t_traj[1:],d_traj[:-1],d_traj[1:])]
   else:  #There is no constant-velocity phase.
     T1= np.sqrt(d_T3/acceleration)
@@ -107,7 +107,7 @@ def TTrajFromXTraj3(x_trajs, speed, speed_ratios, acceleration, dist_criteria):
     def t_from_start(d):
       if d<d_T1:    return np.sqrt(2.0*d/acceleration)
       else:         return T3 - np.sqrt(2.0*max(0.0,d_T3-d)/acceleration)
-    t_traj= map(t_from_start, d_traj)
+    t_traj= list(map(t_from_start, d_traj))
     #print [('_T1' if d1<d_T1 else '_T3', t1-t0) for t0,t1,d0,d1 in zip(t_traj[:-1],t_traj[1:],d_traj[:-1],d_traj[1:])]
   return t_traj
 
@@ -205,8 +205,8 @@ def CheckXQTrajValidity(q_traj, x_traj, f_fk, dp_lim=np.inf, dq_lim=0.1, N_int=5
   if len(q_traj)<=1:  return True
   x_traj_int= [list(x_traj[0])] + sum([XInterpolation(x1,x2,N_int) for x1,x2 in zip(x_traj[:-1],x_traj[1:])], [])
   q_traj_int= [q_traj[0]] + sum([(q1+(np.array(q2)-q1)*np.linspace(0,1,N_int+1)[1:].reshape(-1,1)).tolist() for q1,q2 in zip(q_traj[:-1],q_traj[1:])], [])
-  x_traj_est= map(f_fk, q_traj_int)
-  x_diff= map(lambda d: np.linalg.norm(d[:3])<dp_lim and np.linalg.norm(d[3:])<dq_lim, [DiffX(xi,xe) for xi,xe in zip(x_traj_int,x_traj_est)])
+  x_traj_est= list(map(f_fk, q_traj_int))
+  x_diff= [np.linalg.norm(d[:3])<dp_lim and np.linalg.norm(d[3:])<dq_lim for d in [DiffX(xi,xe) for xi,xe in zip(x_traj_int,x_traj_est)]]
   return all(x_diff)
 
 #Return the interpolation from x1 to x2 with N points
@@ -245,7 +245,7 @@ def XTrajToQTraj(func_ik, x_traj, start_angles):
   N= len(x_traj)
   q_prev= start_angles
   q_traj= None
-  for x,n in zip(x_traj, range(N)):
+  for x,n in zip(x_traj, list(range(N))):
     q= func_ik(x, q_prev)
     if q is None:  return None
     if q_traj is None:  q_traj= [[0.0]*len(q) for i in range(N)]
@@ -286,7 +286,7 @@ class TCubicHermiteSpline:
     idx= self.FindIdx(t,self.idx_prev)
     if abs(t-self.KeyPts[-1].T)<1.0e-6:  idx= len(self.KeyPts)-2
     if idx<0 or idx>=len(self.KeyPts)-1:
-      print 'WARNING: Given t= %f is out of the key points (index: %i)' % (t,idx)
+      print(('WARNING: Given t= %f is out of the key points (index: %i)' % (t,idx)))
       if idx<0:
         idx= 0
         t= self.KeyPts[0].T

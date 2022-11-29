@@ -4,7 +4,7 @@ import sys, termios
 #import atexit
 import shutil
 from select import select
-from util import *
+from .util import *
 
 #Copy a file from src to dst.  dst can not be a directory name.
 #If a parent directory of dst does not exist, we create it.
@@ -114,7 +114,7 @@ class TKBHit(object):
     #print 'dr:',dr
     #print 'dw:',dw
     #print 'de:',de
-    return dr <> []
+    return dr != []
 
   #Get a keyboard hit
   def KBHit(self, echo=False, timeout=0):

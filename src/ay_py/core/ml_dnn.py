@@ -2,9 +2,9 @@
 '''
 Deep neural networks for regression using chainer.
 '''
-from util import *
-from ml import *
-from _chn import loss_for_error2
+from .util import *
+from .ml import *
+from ._chn import loss_for_error2
 
 from chainer import cuda, Variable, FunctionSet, optimizers
 import chainer.functions  as F
@@ -34,7 +34,7 @@ def ReLUGauss(mu, var, epsilon=1.0e-6, cut_sd=4.0):
     if var_out>-epsilon:  return mu_out, 0.0
     else:
       msg= 'ERROR in ReLUGauss: %f, %f, %f, %f'%(mu, sigma, mu_out, var_out)
-      print msg
+      print(msg)
       raise Exception(msg)
   return cast(mu_out), cast(var_out)
 
@@ -198,7 +198,7 @@ class TNNRegression(TFunctionApprox):
 
     if self.Params['nn_params'] != None:
       #self.model.copy_parameters_from(map(lambda e:np.array(e,np.float32),self.Params['nn_params']))
-      self.model.copy_parameters_from(map(lambda e:np.array(e,np.float32),pickle.load(open(L(self.Params['nn_params']), 'rb')) ))
+      self.model.copy_parameters_from([np.array(e,np.float32) for e in pickle.load(open(L(self.Params['nn_params']), 'rb'))])
       self.is_predictable= True
     else:
       if self.Options['init_bias_randomly']:
@@ -206,7 +206,7 @@ class TNNRegression(TFunctionApprox):
 
     if self.Params['nn_params_err'] != None:
       #self.model_err.copy_parameters_from(map(lambda e:np.array(e,np.float32),self.Params['nn_params_err']))
-      self.model_err.copy_parameters_from(map(lambda e:np.array(e,np.float32),pickle.load(open(L(self.Params['nn_params_err']), 'rb')) ))
+      self.model_err.copy_parameters_from([np.array(e,np.float32) for e in pickle.load(open(L(self.Params['nn_params_err']), 'rb'))])
     else:
       if self.Options['init_bias_randomly']:
         self.InitBias(m='error')
@@ -364,10 +364,10 @@ class TNNRegression(TFunctionApprox):
     n_update= 0
     sum_loss= 0.0
     fp= OpenW(opt['log_filename'],'w')
-    for epoch in xrange(n_epoch):
+    for epoch in range(n_epoch):
       perm= np.random.permutation(N)
       # Train model per batch
-      for i in xrange(0, N, batchsize):
+      for i in range(0, N, batchsize):
         x_batch= opt['x_train'][perm[i:i+batchsize]]
         y_batch= opt['y_train'][perm[i:i+batchsize]]
         if opt['gpu'] >= 0:
@@ -385,7 +385,7 @@ class TNNRegression(TFunctionApprox):
           #loss_maf.Update(float(cuda.to_cpu(loss.data)))
           loss_maf.Update(sum_loss / opt['num_check_stop'])
           sum_loss= 0.0
-          if opt['verb']:  print 'Training %s:'%opt['code'], epoch, n_update, loss_maf.Mean, loss_maf.StdDev
+          if opt['verb']:  print(('Training %s:'%opt['code'], epoch, n_update, loss_maf.Mean, loss_maf.StdDev))
           fp.write('%d %d %f %f\n' % (epoch, n_update, loss_maf.Mean, loss_maf.StdDev))
           if loss_maf.StdDev < opt['loss_stddev_stop']:
             is_updating= False
@@ -538,7 +538,7 @@ def TNNRegressionExample1():
   if train_model:
     x_train,y_train= GenData(100, noise=0.2)  #TEST: n samples, noise
 
-    print 'Num of samples for train:',len(y_train)
+    print(('Num of samples for train:',len(y_train)))
     # Dump data for plot:
     fp1= file('/tmp/dnn/smpl_train.dat','w')
     for x,y in zip(x_train,y_train):
@@ -579,8 +579,8 @@ def TNNRegressionExample1():
   #print 'model.Options=',model.Options
   if train_model:
     if not batch_train:
-      for x,y,n in zip(x_train,y_train,range(len(x_train))):
-        print '========',n,'========'
+      for x,y,n in zip(x_train,y_train,list(range(len(x_train)))):
+        print(('========',n,'========'))
         model.Update(x,y,not_learn=((n+1)%min(10,len(x_train))!=0))
       #model.Update()
     else:
@@ -740,7 +740,7 @@ class TNNClassification(TFunctionApprox):
 
     if self.Params['nn_params'] != None:
       #self.model.copy_parameters_from(map(lambda e:np.array(e,np.float32),self.Params['nn_params']))
-      self.model.copy_parameters_from(map(lambda e:np.array(e,np.float32),pickle.load(open(L(self.Params['nn_params']), 'rb')) ))
+      self.model.copy_parameters_from([np.array(e,np.float32) for e in pickle.load(open(L(self.Params['nn_params']), 'rb'))])
       self.is_predictable= True
     else:
       if self.Options['init_bias_randomly']:
@@ -861,10 +861,10 @@ class TNNClassification(TFunctionApprox):
     n_update= 0
     sum_loss= 0.0
     fp= OpenW(opt['log_filename'],'w')
-    for epoch in xrange(n_epoch):
+    for epoch in range(n_epoch):
       perm= np.random.permutation(N)
       # Train model per batch
-      for i in xrange(0, N, batchsize):
+      for i in range(0, N, batchsize):
         x_batch= opt['x_train'][perm[i:i+batchsize]]
         y_batch= opt['y_train'][perm[i:i+batchsize]]
         if opt['gpu'] >= 0:
@@ -882,7 +882,7 @@ class TNNClassification(TFunctionApprox):
           #loss_maf.Update(float(cuda.to_cpu(loss.data)))
           loss_maf.Update(sum_loss / opt['num_check_stop'])
           sum_loss= 0.0
-          if opt['verb']:  print 'Training %s:'%opt['code'], epoch, n_update, loss_maf.Mean, loss_maf.StdDev
+          if opt['verb']:  print(('Training %s:'%opt['code'], epoch, n_update, loss_maf.Mean, loss_maf.StdDev))
           fp.write('%d %d %f %f\n' % (epoch, n_update, loss_maf.Mean, loss_maf.StdDev))
           if loss_maf.StdDev < opt['loss_stddev_stop']:
             is_updating= False

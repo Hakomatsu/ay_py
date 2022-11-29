@@ -15,7 +15,7 @@ mikata.SetPWM({jname:0 for jname in mikata.JointNames()})
 
 try:
   while True:
-    print 'Position=',mikata.Position()
+    print('Position=',mikata.Position())
     time.sleep(0.001)
 except KeyboardInterrupt:
   pass

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #Robot controller for Universal Robots UR*.
-from const import *
+from .const import *
 
 import roslib
 import rospy
@@ -12,8 +12,8 @@ import sensor_msgs.msg
 import trajectory_msgs.msg
 import copy
 
-from robot import *
-from kdl_kin import *
+from .robot import *
+from .kdl_kin import *
 
 '''Robot control class for single Universal Robots UR* with an empty gripper.'''
 class TRobotUR(TMultiArmRobot):
@@ -139,9 +139,9 @@ class TRobotUR(TMultiArmRobot):
       return all((self.robot_mode.mode==self.robot_mode.RUNNING, self.safety_mode.mode==self.safety_mode.NORMAL, self.robot_program_running))
 
   def PrintStatus(self):
-    print 'robot_mode: {0} ({1})'.format(self.robot_mode.mode, 'running' if self.robot_mode.mode==self.robot_mode.RUNNING else 'not running')
-    print 'safety_mode: {0} ({1})'.format(self.safety_mode.mode, 'normal' if self.safety_mode.mode==self.safety_mode.NORMAL else 'not normal')
-    print 'robot_program_running: {0}'.format(self.robot_program_running)
+    print(('robot_mode: {0} ({1})'.format(self.robot_mode.mode, 'running' if self.robot_mode.mode==self.robot_mode.RUNNING else 'not running')))
+    print(('safety_mode: {0} ({1})'.format(self.safety_mode.mode, 'normal' if self.safety_mode.mode==self.safety_mode.NORMAL else 'not normal')))
+    print(('robot_program_running: {0}'.format(self.robot_program_running)))
 
   def RobotIP(self):
     return self.robot_ip
