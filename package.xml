@@ -1,0 +1,15 @@
+<package>
+  <name>ay_py</name>
+  <version>0.0.1</version>
+  <description>ay_py</description>
+  <author>Akihiko Yamaguchi</author>
+  <maintainer email="user@todo.todo">user</maintainer>
+  <license>Described in LICENSE</license>
+  <url>http://akihikoy.net</url>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rospy</build_depend>
+  <run_depend>rospy</run_depend>
+
+</package>
+
+
